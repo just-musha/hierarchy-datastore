@@ -23,9 +23,9 @@ func existInSubtree(root *Node, id string) bool {
 	return findNodeByID(root, id) != nil
 }
 
-func traverse(root, found *Node, id string) {
+func traverse(root *Node, found **Node, id string) {
 	if root.ID == id {
-		*found = *root
+		*found = root
 		return
 	}
 	for _, ch := range root.Children {
@@ -34,13 +34,10 @@ func traverse(root, found *Node, id string) {
 }
 
 func findNodeByID(root *Node, id string) *Node {
-	var result Node
+	var result *Node
 	traverse(root, &result, id)
-	if result.ID == "" {
-		return nil
-	} else {
-		return &result
-	}
+	return result
+
 }
 
 // TODO: "add_node"
@@ -108,11 +105,12 @@ func main() {
 
 	ch2.Children = append(ch2.Children, &Node{ID: "7", Name: "77", ParentID: "4"})
 
-	res := existInSubtree(root, "55")
+	res := findNodeByID(root, "5")
+
 	fmt.Printf("Found Node = %+v\n", res)
 
-	res = AddNode("8", "88", "7")
-	fmt.Println("Add status = ", res)
+	res2 := AddNode("8", "88", "7")
+	fmt.Println("Add status = ", res2)
 
 	printTree(root, "")
 }
