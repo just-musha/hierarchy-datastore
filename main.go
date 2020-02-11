@@ -9,13 +9,19 @@ type Node struct {
 	Children []*Node
 }
 
-var root *Node
+type Tree struct {
+	root *Node
+}
 
-func printTree(root *Node, prefix string) {
+func (tr Tree) PrintTree() {
+	tr.root.print("")
+}
+
+func (node Node) print(prefix string) {
 	fmt.Printf(prefix+">>id = %s, name = %s, parent_id = %s, child num = %d\n",
-		root.ID, root.Name, root.ParentID, len(root.Children))
-	for _, ch := range root.Children {
-		printTree(ch, prefix+"\t")
+		node.ID, node.Name, node.ParentID, len(node.Children))
+	for _, ch := range node.Children {
+		ch.print(prefix + "\t")
 	}
 }
 
@@ -41,12 +47,12 @@ func findNodeByID(root *Node, id string) *Node {
 }
 
 // TODO: "add_node"
-func AddNode(id, name, parent_id string) bool {
-	if parent_id == "" && root != nil {
+func (tr Tree) AddNode(id, name, parent_id string) bool {
+	if parent_id == "" && tr.root != nil {
 		fmt.Errorf("There can only be one root node (i.e., a node without a parent)")
 		return false
 	}
-	if !existInSubtree(root, parent_id) {
+	if !existInSubtree(tr.root, parent_id) {
 		fmt.Errorf("If specified, parent node must exist")
 		return false
 	}
@@ -54,11 +60,11 @@ func AddNode(id, name, parent_id string) bool {
 		fmt.Errorf("Name and ID must be specified and not empty strings")
 		return false
 	}
-	if existInSubtree(root, id) {
+	if existInSubtree(tr.root, id) {
 		fmt.Errorf("No two nodes in the tree can have the same ID")
 		return false
 	}
-	parent := findNodeByID(root, parent_id)
+	parent := findNodeByID(tr.root, parent_id)
 	exist := false
 	for _, ch := range parent.Children {
 		if ch.Name == name {
@@ -70,7 +76,6 @@ func AddNode(id, name, parent_id string) bool {
 		return false
 	}
 	parent.Children = append(parent.Children, &Node{ID: id, Name: name, ParentID: parent_id})
-	fmt.Printf("Parent = %+q\n\n", parent)
 	return true
 }
 
@@ -90,27 +95,21 @@ func Query(min_depth, max_depth int, names, ids, root_ids []string) {
 }
 
 func main() {
-	root = &Node{ID: "1", Name: "root"}
+	tree := Tree{root: &Node{ID: "1", Name: "root"}}
 
-	root.Children = append(root.Children, &Node{ID: "2", Name: "22", ParentID: "1"})
-	root.Children = append(root.Children, &Node{ID: "3", Name: "33", ParentID: "1"})
+	tree.AddNode("2", "22", "1")
+	tree.AddNode("3", "33", "1")
+	tree.AddNode("4", "44", "1")
 
-	root.Children = append(root.Children, &Node{ID: "4", Name: "44", ParentID: "1"})
+	tree.AddNode("5", "55", "2")
+	tree.AddNode("6", "66", "2")
 
-	ch0 := root.Children[0]
-	ch2 := root.Children[2]
+	tree.AddNode("7", "77", "4")
 
-	ch0.Children = append(ch0.Children, &Node{ID: "5", Name: "55", ParentID: "2"})
-	ch0.Children = append(ch0.Children, &Node{ID: "6", Name: "66", ParentID: "2"})
+	node := findNodeByID(tree.root, "5")
+	fmt.Printf("Found Node = %+v\n", node)
 
-	ch2.Children = append(ch2.Children, &Node{ID: "7", Name: "77", ParentID: "4"})
+	tree.AddNode("8", "88", "7")
 
-	res := findNodeByID(root, "5")
-
-	fmt.Printf("Found Node = %+v\n", res)
-
-	res2 := AddNode("8", "88", "7")
-	fmt.Println("Add status = ", res2)
-
-	printTree(root, "")
+	tree.PrintTree()
 }
