@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -77,4 +78,36 @@ func TestDeleteRoot(t *testing.T) {
 	if !reflect.DeepEqual(tree, wanttree) {
 		t.Errorf("Wrong Delete Root:\ngot %+v\nwant %+v\n", tree, wanttree)
 	}
+}
+
+func TestAddNodeSuite(t *testing.T) {
+
+	var flagtests = []struct {
+		id        string
+		name      string
+		parent_id string
+		out       bool
+	}{
+		{"", "", "", false},
+		{"1", "root", "", true},
+		{"", "1", "", false},
+		{"", "", "1", false},
+		{"1", "11", "111", false},
+	}
+
+	var tree Tree
+
+	for i, tt := range flagtests {
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+			res := tree.AddNode(tt.id, tt.name, tt.parent_id)
+			if res != tt.out {
+				t.Errorf("got %v, want %v\nTree%+v\n", res, tt.out, tree)
+
+				if tt.out == true {
+					tree.DeleteNode(tt.id)
+				}
+			}
+		})
+	}
+
 }
