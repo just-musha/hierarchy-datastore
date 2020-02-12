@@ -81,7 +81,6 @@ func TestDeleteRoot(t *testing.T) {
 }
 
 func TestAddNodeSuite(t *testing.T) {
-
 	var flagtests = []struct {
 		id        string
 		name      string
@@ -106,6 +105,35 @@ func TestAddNodeSuite(t *testing.T) {
 				if tt.out == true {
 					tree.DeleteNode(tt.id)
 				}
+			}
+		})
+	}
+}
+
+func TestDeleteNodeSuite(t *testing.T) {
+	var flagtests = []struct {
+		id  string
+		out bool
+	}{
+		{"", false},
+		{"1", false},
+		{"123", false},
+		{"0", false},
+		{"2", true},
+		{"1", true},
+		{"0", true},
+	}
+
+	var tree Tree
+	tree.AddNode("0", "root", "")
+	tree.AddNode("1", "11", "0")
+	tree.AddNode("2", "22", "1")
+
+	for i, tt := range flagtests {
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+			res := tree.DeleteNode(tt.id)
+			if res != tt.out {
+				t.Errorf("got %v, want %v\nTree%+v\n", res, tt.out, tree)
 			}
 		})
 	}
