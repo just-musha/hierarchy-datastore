@@ -56,7 +56,7 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 	if parent_id == "" && tr.root != nil {
 		fmt.Errorf("There can only be one root node (i.e., a node without a parent)")
 		return false
-	} else {
+	} else if parent_id == "" && tr.root == nil {
 		// Add root node
 		tr.root = &Node{ID: id, Name: name}
 		return true
@@ -85,7 +85,7 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 }
 
 // TODO: "delete_node"
-func (tr Tree) DeleteNode(id string) bool {
+func (tr *Tree) DeleteNode(id string) bool {
 	if id == "" {
 		fmt.Errorf("ID must be specified and not an empty string")
 		return false
@@ -102,6 +102,12 @@ func (tr Tree) DeleteNode(id string) bool {
 	}
 
 	pid := node.ParentID
+	if pid == "" {
+		// Delete Root
+		tr.root = nil
+		return true
+	}
+
 	pnode := findNodeByID(tr.root, pid)
 	idx := -1
 	for i := range pnode.Children {
