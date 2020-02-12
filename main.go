@@ -20,6 +20,7 @@ func (tr Tree) PrintTree() {
 func (node Node) print(prefix string) {
 	fmt.Printf(prefix+">>id = %s, name = %s, parent_id = %s, child num = %d\n",
 		node.ID, node.Name, node.ParentID, len(node.Children))
+
 	for _, ch := range node.Children {
 		ch.print(prefix + "\t")
 	}
@@ -47,17 +48,21 @@ func findNodeByID(root *Node, id string) *Node {
 }
 
 // TODO: "add_node"
-func (tr Tree) AddNode(id, name, parent_id string) bool {
+func (tr *Tree) AddNode(id, name, parent_id string) bool {
+	if name == "" || id == "" {
+		fmt.Errorf("Name and ID must be specified and not empty strings")
+		return false
+	}
 	if parent_id == "" && tr.root != nil {
 		fmt.Errorf("There can only be one root node (i.e., a node without a parent)")
 		return false
+	} else {
+		// Add root node
+		tr.root = &Node{ID: id, Name: name}
+		return true
 	}
 	if !existInSubtree(tr.root, parent_id) {
 		fmt.Errorf("If specified, parent node must exist")
-		return false
-	}
-	if name == "" || id == "" {
-		fmt.Errorf("Name and ID must be specified and not empty strings")
 		return false
 	}
 	if existInSubtree(tr.root, id) {
@@ -80,8 +85,37 @@ func (tr Tree) AddNode(id, name, parent_id string) bool {
 }
 
 // TODO: "delete_node"
-func DeleteNode(id string) bool {
-	return false
+func (tr Tree) DeleteNode(id string) bool {
+	if id == "" {
+		fmt.Errorf("ID must be specified and not an empty string")
+		return false
+	}
+	node := findNodeByID(tr.root, id)
+	if node == nil {
+		fmt.Errorf("Node does not exist")
+		return false
+	}
+
+	if len(node.Children) != 0 {
+		fmt.Errorf("Node must not have children")
+		return false
+	}
+
+	pid := node.ParentID
+	pnode := findNodeByID(tr.root, pid)
+	idx := -1
+	for i := range pnode.Children {
+		if pnode.Children[i].ID == id {
+			idx = i
+			break
+		}
+	}
+	len := len(pnode.Children)
+	copy(pnode.Children[idx:], pnode.Children[idx+1:])
+	pnode.Children[len-1] = nil
+	pnode.Children = pnode.Children[:len-1]
+
+	return true
 }
 
 // TODO: "move_node"
@@ -111,5 +145,10 @@ func main() {
 
 	tree.AddNode("8", "88", "7")
 
+	tree.PrintTree()
+
+	fmt.Println("---------------------")
+	tree.DeleteNode("8")
+	tree.DeleteNode("7")
 	tree.PrintTree()
 }
