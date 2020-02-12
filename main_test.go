@@ -173,3 +173,43 @@ func TestDeleteNodeSuite(t *testing.T) {
 	}
 
 }
+
+func TestMoveNodeSuite(t *testing.T) {
+	var tree Tree
+	tree.AddNode("0", "root", "")
+	tree.AddNode("1", "11", "0")
+	tree.AddNode("4", "44", "0")
+	tree.AddNode("5", "55", "4")
+	tree.AddNode("6", "name", "4")
+
+	tree.AddNode("2", "name", "1")
+	tree.AddNode("3", "33", "2")
+	tree.AddNode("33", "333", "1")
+
+	var flagtests = []struct {
+		id            string
+		new_parent_id string
+		out           bool
+	}{
+		{"", "", false},
+		{"111", "", false},
+		{"111", "1", false},
+		{"1", "111", false},
+		{"2", "4", false},
+		{"1", "3", false},
+		{"0", "5", false},
+		{"1", "4", true},
+		{"1", "0", true},
+	}
+
+	for i, tt := range flagtests {
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+			res := tree.MoveNode(tt.id, tt.new_parent_id)
+			if res != tt.out {
+				tree.PrintTree()
+				t.Errorf("got %v, want %v\nTree%+v\n", res, tt.out, tree)
+			}
+		})
+	}
+
+}

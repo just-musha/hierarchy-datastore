@@ -47,6 +47,39 @@ func findNodeByID(root *Node, id string) *Node {
 
 }
 
+func findChildIdxByID(node *Node, id string) int {
+	for i := range node.Children {
+		if node.Children[i].ID == id {
+			return i
+		}
+	}
+	return -1
+}
+
+func removeChildByID(node *Node, id string) bool {
+	idx := findChildIdxByID(node, id)
+	if idx == -1 {
+		return false
+	}
+
+	len := len(node.Children)
+	copy(node.Children[idx:], node.Children[idx+1:])
+	node.Children[len-1] = nil
+	node.Children = node.Children[:len-1]
+	return true
+}
+
+// Check if node "name" is already present among
+// children of parent node
+func isTakenChildName(parent *Node, childname string) bool {
+	for _, ch := range parent.Children {
+		if ch.Name == childname {
+			return true
+		}
+	}
+	return false
+}
+
 // TODO: "add_node"
 func (tr *Tree) AddNode(id, name, parent_id string) bool {
 	if name == "" || id == "" {
@@ -69,13 +102,9 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 		fmt.Errorf("No two nodes in the tree can have the same ID")
 		return false
 	}
+
 	parent := findNodeByID(tr.root, parent_id)
-	exist := false
-	for _, ch := range parent.Children {
-		if ch.Name == name {
-			exist = true
-		}
-	}
+	exist := isTakenChildName(parent, name)
 	if exist {
 		fmt.Errorf("Two sibling nodes cannot have the same name")
 		return false
@@ -109,24 +138,44 @@ func (tr *Tree) DeleteNode(id string) bool {
 	}
 
 	pnode := findNodeByID(tr.root, pid)
-	idx := -1
-	for i := range pnode.Children {
-		if pnode.Children[i].ID == id {
-			idx = i
-			break
-		}
-	}
-	len := len(pnode.Children)
-	copy(pnode.Children[idx:], pnode.Children[idx+1:])
-	pnode.Children[len-1] = nil
-	pnode.Children = pnode.Children[:len-1]
-
-	return true
+	return removeChildByID(pnode, id)
 }
 
 // TODO: "move_node"
-func MoveNode(id, new_parent_id string) bool {
-	return false
+func (tr *Tree) MoveNode(id, new_parent_id string) bool {
+	if id == "" || new_parent_id == "" {
+		fmt.Errorf("MoveNode: ID and new parent ID must be specified and not empty strings")
+		return false
+	}
+	node := findNodeByID(tr.root, id)
+	if node == nil {
+		fmt.Errorf("MoveNode: id Node not found")
+		return false
+	}
+	newp := findNodeByID(tr.root, new_parent_id)
+	if newp == nil {
+		fmt.Errorf("MoveNode: new parent id Node not found")
+		return false
+	}
+	if isTakenChildName(newp, node.Name) {
+		fmt.Errorf("MoveNode: name of node already exist among new parent children")
+		return false
+	}
+	// Check for cycle
+	// cycle if new_parent is in subtree of node
+	if findNodeByID(node, new_parent_id) != nil {
+		fmt.Errorf("MoveNode: moving node should not create a cycle")
+		return false
+	}
+
+	oldp := findNodeByID(tr.root, node.ParentID)
+	if !removeChildByID(oldp, id) {
+		return false
+	}
+
+	node.ParentID = new_parent_id
+	newp.Children = append(newp.Children, node)
+	return true
 }
 
 // TODO: "query"
