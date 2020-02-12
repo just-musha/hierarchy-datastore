@@ -6,6 +6,40 @@ import (
 	"testing"
 )
 
+func TestFindNodeByID(t *testing.T) {
+	var tree Tree
+	tree.AddNode("1", "root", "")
+	tree.AddNode("56", "5656", "1")
+	tree.AddNode("2", "22", "1")
+	tree.AddNode("3", "33", "2")
+	tree.AddNode("4", "44", "2")
+
+	var flagtests = []struct {
+		id  string
+		out bool
+	}{
+		{"", false},
+		{"1", true},
+		{"4", true},
+		{"12333", false},
+		{"2", true},
+	}
+
+	for i, tt := range flagtests {
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+			node := findNodeByID(tree.root, tt.id)
+
+			res := false
+			if node != nil {
+				res = true
+			}
+			if res != tt.out {
+				t.Errorf("got %v, want %v\nTree%+v\n", res, tt.out, tree)
+			}
+		})
+	}
+}
+
 func TestAddRoot(t *testing.T) {
 	var tree Tree
 	result := tree.AddNode("1", "root", "")
