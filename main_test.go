@@ -200,6 +200,7 @@ func TestMoveNodeSuite(t *testing.T) {
 		{"0", "5", false},
 		{"1", "4", true},
 		{"1", "0", true},
+		{"1", "1", false},
 	}
 
 	for i, tt := range flagtests {
@@ -211,5 +212,4 @@ func TestMoveNodeSuite(t *testing.T) {
 			}
 		})
 	}
-
 }
