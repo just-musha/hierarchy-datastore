@@ -1,4 +1,4 @@
-package hierarchy_wip
+package hierarchy
 
 import (
 	"reflect"

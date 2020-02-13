@@ -1,7 +1,7 @@
 package main
 
 import (
-	hierarchy "hierarchy_wip/hierarchy"
+	hierarchy "hierarchy-datastore/hierarchy"
 )
 
 func main() {
