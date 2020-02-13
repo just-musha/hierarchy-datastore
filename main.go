@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Node struct {
 	Name     string
@@ -25,6 +28,12 @@ func (node Node) print(prefix string) {
 		ch.print(prefix + "\t")
 	}
 }
+
+type NameSorter []*Node
+
+func (nodes NameSorter) Len() int           { return len(nodes) }
+func (nodes NameSorter) Swap(i, j int)      { nodes[i], nodes[j] = nodes[j], nodes[i] }
+func (nodes NameSorter) Less(i, j int) bool { return nodes[i].Name < nodes[j].Name }
 
 func existInSubtree(root *Node, id string) bool {
 	return findNodeByID(root, id) != nil
@@ -109,7 +118,12 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 		fmt.Errorf("Two sibling nodes cannot have the same name")
 		return false
 	}
+
 	parent.Children = append(parent.Children, &Node{ID: id, Name: name, ParentID: parent_id})
+
+	// Keep children sorted by node.Name
+	sort.Sort(NameSorter(parent.Children))
+
 	return true
 }
 
@@ -175,6 +189,9 @@ func (tr *Tree) MoveNode(id, new_parent_id string) bool {
 
 	node.ParentID = new_parent_id
 	newp.Children = append(newp.Children, node)
+
+	// Keep children sorted by node.Name
+	sort.Sort(NameSorter(newp.Children))
 	return true
 }
 
@@ -214,7 +231,7 @@ func (node *Node) check(result *[]*Node, depth int, min_depth, max_depth int, na
 	}
 
 	if ok {
-		fmt.Printf("Appending Node %v\n", node)
+		//fmt.Printf("Appending Node %v\n", node)
 		*result = append(*result, node)
 	}
 

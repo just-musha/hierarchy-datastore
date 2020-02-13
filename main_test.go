@@ -2,6 +2,7 @@ package main
 
 import (
 	"reflect"
+	"sort"
 	"strconv"
 	"testing"
 )
@@ -231,6 +232,27 @@ func TestSliceFromTree(t *testing.T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("SliceFromTree: got %+v, want %+v\n", got, want)
 	}
+}
+
+func TestSortNodes(t *testing.T) {
+	nodes := []*Node{
+		&Node{ID: "1", Name: "ccc"},
+		&Node{ID: "2", Name: "bbb"},
+		&Node{ID: "3", Name: "aaa"},
+	}
+
+	want := []*Node{
+		&Node{ID: "3", Name: "aaa"},
+		&Node{ID: "2", Name: "bbb"},
+		&Node{ID: "1", Name: "ccc"},
+	}
+
+	sort.Sort(NameSorter(nodes))
+
+	if !reflect.DeepEqual(nodes, want) {
+		t.Errorf("SliceFromTree: got %+v, want %+v\n", nodes, want)
+	}
+
 }
 
 func TestQueryMinMaxSuite(t *testing.T) {
