@@ -178,9 +178,76 @@ func (tr *Tree) MoveNode(id, new_parent_id string) bool {
 	return true
 }
 
+// Check if node satisfy all criteria
+func (node *Node) check(result *[]*Node, depth int, min_depth, max_depth int, names, ids []string) {
+	ok := true
+	if min_depth != -1 && depth < min_depth {
+		ok = false
+	}
+
+	if max_depth != -1 && depth > max_depth {
+		ok = false
+	}
+
+	if len(names) != 0 {
+		inlist := false
+		for _, n := range names {
+			if node.Name == n {
+				inlist = true
+			}
+		}
+		if !inlist {
+			ok = false
+		}
+	}
+
+	if len(ids) != 0 {
+		inlist := false
+		for _, id := range ids {
+			if node.ID == id {
+				inlist = true
+			}
+		}
+		if !inlist {
+			ok = false
+		}
+	}
+
+	if ok {
+		fmt.Printf("Appending Node %v\n", node)
+		*result = append(*result, node)
+	}
+
+	for _, ch := range node.Children {
+		ch.check(result, depth+1, min_depth, max_depth, names, ids)
+	}
+}
+
+func sliceFromTree_internal(root *Node, result *[]*Node) {
+	*result = append(*result, root)
+	for i := range root.Children {
+		sliceFromTree_internal(root.Children[i], result)
+	}
+}
+
+// Make slice from subtree
+func sliceFromTree(root *Node) []*Node {
+	var result []*Node
+	sliceFromTree_internal(root, &result)
+	return result
+}
+
 // TODO: "query"
-func Query(min_depth, max_depth int, names, ids, root_ids []string) {
-	return
+func (tr Tree) Query(min_depth, max_depth int, names, ids, root_ids []string) []*Node {
+	result := []*Node{}
+	if len(root_ids) == 0 {
+		tr.root.check(&result, 0, min_depth, max_depth, names, ids)
+	} else {
+		// TODO: find node by ID and check it
+		// Then concatenate results
+	}
+
+	return result
 }
 
 func main() {
@@ -202,8 +269,4 @@ func main() {
 
 	tree.PrintTree()
 
-	fmt.Println("---------------------")
-	tree.DeleteNode("8")
-	tree.DeleteNode("7")
-	tree.PrintTree()
 }
