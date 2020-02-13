@@ -255,7 +255,7 @@ func TestSortNodes(t *testing.T) {
 
 }
 
-func TestQueryMinMaxSuite(t *testing.T) {
+func makeTestTree() Tree {
 	var tree Tree
 	tree.AddNode("1", "root", "")
 	tree.AddNode("2", "22", "1")
@@ -267,6 +267,11 @@ func TestQueryMinMaxSuite(t *testing.T) {
 
 	tree.AddNode("7", "77", "4")
 	tree.AddNode("8", "88", "7")
+	return tree
+}
+
+func TestQueryMinMaxSuite(t *testing.T) {
+	tree := makeTestTree()
 
 	var flagtests = []struct {
 		mind  int
@@ -348,40 +353,38 @@ func TestQueryNamesSuite(t *testing.T) {
 }
 
 func TestQuerySuite(t *testing.T) {
-	var tree Tree
-	tree.AddNode("1", "root", "")
-	tree.AddNode("2", "22", "1")
-	tree.AddNode("3", "33", "1")
-	tree.AddNode("4", "44", "1")
-	tree.AddNode("5", "55", "2")
-	tree.AddNode("6", "66", "2")
-	tree.AddNode("9", "99", "6")
-
-	tree.AddNode("7", "77", "4")
-	tree.AddNode("8", "88", "7")
+	tree := makeTestTree()
 
 	var flagtests = []struct {
-		mind  int
-		maxd  int
-		names []string
-		ids   []string
+		mind     int
+		maxd     int
+		names    []string
+		ids      []string
+		root_ids []string
 
 		out []*Node
 	}{
-		{-1, -1, []string{"55", "66", "77"}, nil, []*Node{
+		{-1, -1, []string{"55", "66", "77"}, nil, nil, []*Node{
 			&Node{ID: "5", Name: "55", ParentID: "2"},
 			&Node{ID: "6", Name: "66", ParentID: "2", Children: []*Node{&Node{ID: "9", Name: "99", ParentID: "6"}}},
 			&Node{ID: "7", Name: "77", ParentID: "4", Children: []*Node{&Node{ID: "8", Name: "88", ParentID: "7"}}}}},
-		{2, 2, []string{"55"}, nil, []*Node{
+		{2, 2, []string{"55"}, nil, nil, []*Node{
 			&Node{ID: "5", Name: "55", ParentID: "2"}}},
-		{1, 3, []string{"root", "55", "99"}, nil, []*Node{
+		{1, 3, []string{"root", "55", "99"}, nil, nil, []*Node{
 			&Node{ID: "5", Name: "55", ParentID: "2"},
+			&Node{ID: "9", Name: "99", ParentID: "6"}}},
+
+		{1, -1, nil, nil, []string{"6", "7"}, []*Node{
+			&Node{ID: "9", Name: "99", ParentID: "6"},
+			&Node{ID: "8", Name: "88", ParentID: "7"}}},
+		{1, -1, nil, nil, []string{"7", "6"}, []*Node{
+			&Node{ID: "8", Name: "88", ParentID: "7"},
 			&Node{ID: "9", Name: "99", ParentID: "6"}}},
 	}
 
 	for i, tt := range flagtests {
 		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
-			res := tree.Query(tt.mind, tt.maxd, tt.names, tt.ids, nil)
+			res := tree.Query(tt.mind, tt.maxd, tt.names, tt.ids, tt.root_ids)
 
 			if !reflect.DeepEqual(res, tt.out) {
 				t.Errorf("got %v len = %d, want %v len = %d\n", res, len(res), tt.out, len(tt.out))
@@ -389,4 +392,32 @@ func TestQuerySuite(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFilterRootIDs(t *testing.T) {
+	tree := makeTestTree()
+
+	var flagtests = []struct {
+		root_ids []string
+		out      []string
+	}{
+		{[]string{}, []string{}},
+		{[]string{"2", "6", "9"}, []string{"2"}},
+		{[]string{"2"}, []string{"2"}},
+		{[]string{"4", "3", "2"}, []string{"4", "3", "2"}},
+		{[]string{"8", "1"}, []string{"1"}},
+	}
+
+	for i, tt := range flagtests {
+		t.Run("case"+strconv.Itoa(i), func(t *testing.T) {
+
+			res := tree.filterRootIDs(tt.root_ids)
+
+			if !reflect.DeepEqual(tt.out, tt.out) {
+				t.Errorf("got %v len = %d, want %v len = %d\n", res, len(res), tt.out, len(tt.out))
+				tree.PrintTree()
+			}
+		})
+	}
+
 }

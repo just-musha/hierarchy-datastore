@@ -254,14 +254,44 @@ func sliceFromTree(root *Node) []*Node {
 	return result
 }
 
-// TODO: "query"
+// Helper for Query function, removes root IDs which belong to any other subtree
+func (tr Tree) filterRootIDs(root_ids []string) []string {
+	result := []string{}
+	for i := range root_ids {
+
+		checknode := findNodeByID(tr.root, root_ids[i])
+		inAnySubtree := false
+
+		for j := range root_ids {
+			if i == j {
+				continue
+			}
+			rootnode := findNodeByID(tr.root, root_ids[j])
+			if rootnode != nil && checknode != nil && existInSubtree(rootnode, checknode.ID) {
+				inAnySubtree = true
+			}
+		}
+
+		if !inAnySubtree {
+			result = append(result, checknode.ID)
+		}
+	}
+	return result
+}
+
 func (tr Tree) Query(min_depth, max_depth int, names, ids, root_ids []string) []*Node {
+
 	result := []*Node{}
+
 	if len(root_ids) == 0 {
 		tr.root.check(&result, 0, min_depth, max_depth, names, ids)
 	} else {
-		// TODO: find node by ID and check it
-		// Then concatenate results
+		for _, id := range root_ids {
+			node := findNodeByID(tr.root, id)
+			if node != nil {
+				node.check(&result, 0, min_depth, max_depth, names, ids)
+			}
+		}
 	}
 
 	return result
