@@ -85,7 +85,7 @@ func AnalyseReqest(tree *hierarchy.Tree, req string) {
 	} else if request.MoveNode != nil {
 		r := *request.MoveNode
 		fmt.Fprintf(os.Stderr, ">> Request Move: %q\n", request.MoveNode)
-		status := tree.DeleteNode(r.ID)
+		status := tree.MoveNode(r.ID, r.NewParentID)
 		writeResponse(status)
 
 	} else if request.Query != nil {

@@ -2,6 +2,7 @@ package hierarchy
 
 import (
 	"fmt"
+	"os"
 	"sort"
 )
 
@@ -50,6 +51,10 @@ func traverse(root *Node, found **Node, id string) {
 }
 
 func findNodeByID(root *Node, id string) *Node {
+	if root == nil {
+		return nil
+	}
+
 	var result *Node
 	traverse(root, &result, id)
 	return result
@@ -91,15 +96,12 @@ func isTakenChildName(parent *Node, childname string) bool {
 
 // TODO: "add_node"
 func (tr *Tree) AddNode(id, name, parent_id string) bool {
-	if tr.root == nil {
-		return false
-	}
 	if name == "" || id == "" {
-		fmt.Errorf("Name and ID must be specified and not empty strings")
+		fmt.Fprintf(os.Stderr, "Name and ID must be specified and not empty strings")
 		return false
 	}
 	if parent_id == "" && tr.root != nil {
-		fmt.Errorf("There can only be one root node (i.e., a node without a parent)")
+		fmt.Fprintf(os.Stderr, "There can only be one root node (i.e., a node without a parent)")
 		return false
 	} else if parent_id == "" && tr.root == nil {
 		// Add root node
@@ -107,18 +109,18 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 		return true
 	}
 	if !existInSubtree(tr.root, parent_id) {
-		fmt.Errorf("If specified, parent node must exist")
+		fmt.Fprintf(os.Stderr, "If specified, parent node must exist")
 		return false
 	}
 	if existInSubtree(tr.root, id) {
-		fmt.Errorf("No two nodes in the tree can have the same ID")
+		fmt.Fprintf(os.Stderr, "No two nodes in the tree can have the same ID")
 		return false
 	}
 
 	parent := findNodeByID(tr.root, parent_id)
 	exist := isTakenChildName(parent, name)
 	if exist {
-		fmt.Errorf("Two sibling nodes cannot have the same name")
+		fmt.Fprintf(os.Stderr, "Two sibling nodes cannot have the same name")
 		return false
 	}
 
@@ -136,17 +138,17 @@ func (tr *Tree) DeleteNode(id string) bool {
 		return false
 	}
 	if id == "" {
-		fmt.Errorf("ID must be specified and not an empty string")
+		fmt.Fprintf(os.Stderr, "ID must be specified and not an empty string")
 		return false
 	}
 	node := findNodeByID(tr.root, id)
 	if node == nil {
-		fmt.Errorf("Node does not exist")
+		fmt.Fprintf(os.Stderr, "Node does not exist")
 		return false
 	}
 
 	if len(node.Children) != 0 {
-		fmt.Errorf("Node must not have children")
+		fmt.Fprintf(os.Stderr, "Node must not have children")
 		return false
 	}
 
@@ -167,27 +169,27 @@ func (tr *Tree) MoveNode(id, new_parent_id string) bool {
 		return false
 	}
 	if id == "" || new_parent_id == "" {
-		fmt.Errorf("MoveNode: ID and new parent ID must be specified and not empty strings")
+		fmt.Fprintf(os.Stderr, "MoveNode: ID and new parent ID must be specified and not empty strings")
 		return false
 	}
 	node := findNodeByID(tr.root, id)
 	if node == nil {
-		fmt.Errorf("MoveNode: id Node not found")
+		fmt.Fprintf(os.Stderr, "MoveNode: id Node not found")
 		return false
 	}
 	newp := findNodeByID(tr.root, new_parent_id)
 	if newp == nil {
-		fmt.Errorf("MoveNode: new parent id Node not found")
+		fmt.Fprintf(os.Stderr, "MoveNode: new parent id Node not found")
 		return false
 	}
 	if isTakenChildName(newp, node.Name) {
-		fmt.Errorf("MoveNode: name of node already exist among new parent children")
+		fmt.Fprintf(os.Stderr, "MoveNode: name of node already exist among new parent children")
 		return false
 	}
 	// Check for cycle
 	// cycle if new_parent is in subtree of node
 	if findNodeByID(node, new_parent_id) != nil {
-		fmt.Errorf("MoveNode: moving node should not create a cycle")
+		fmt.Fprintf(os.Stderr, "MoveNode: moving node should not create a cycle")
 		return false
 	}
 
@@ -269,6 +271,9 @@ func (tr Tree) filterRootIDs(root_ids []string) []string {
 	for i := range root_ids {
 
 		checknode := findNodeByID(tr.root, root_ids[i])
+		if checknode == nil {
+			continue
+		}
 		inAnySubtree := false
 
 		for j := range root_ids {
