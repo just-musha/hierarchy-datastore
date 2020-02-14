@@ -283,6 +283,10 @@ func (tr Tree) Query(min_depth, max_depth int, names, ids, root_ids []string) []
 
 	result := []*Node{}
 
+	if tr.root == nil {
+		return result
+	}
+
 	if len(root_ids) == 0 {
 		tr.root.check(&result, 0, min_depth, max_depth, names, ids)
 	} else {

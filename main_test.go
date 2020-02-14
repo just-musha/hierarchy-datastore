@@ -55,7 +55,6 @@ func TestResponseQuery(t *testing.T) {
 
 func TestRequestAdd(t *testing.T) {
 	var got Request
-	got.Query.SetDefaults()
 
 	jsonReq := "{\"add_node\":{\"id\":\"1\",\"name\":\"Root\"}}"
 
@@ -65,17 +64,15 @@ func TestRequestAdd(t *testing.T) {
 	}
 
 	var want Request
-	want.Query.SetDefaults()
-	want.AddNode = AddNodeParams{ID: "1", Name: "Root", ParentID: ""}
+	want.AddNode = &AddNodeParams{ID: "1", Name: "Root", ParentID: ""}
 
-	if got.AddNode != want.AddNode {
-		t.Errorf("\ngot %+v\nwant %+v\n", got, want)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("\ngot %+v\nwant %+v\n", got.AddNode, want.AddNode)
 	}
 }
 
 func TestRequestQuery(t *testing.T) {
 	var got Request
-	got.Query.SetDefaults()
 
 	jsonReq := "{\"query\":{\"min_depth\":2,\"names\":[\"B\"]}}"
 
@@ -85,13 +82,14 @@ func TestRequestQuery(t *testing.T) {
 	}
 
 	var want Request
-	want.Query.SetDefaults()
-	want.Query.MinD = 2
+	want.Query = new(QueryParams)
 	want.Query.Names = []string{"B"}
+	want.Query.MinD = new(int)
+	*want.Query.MinD = 2
 
 	fmt.Printf("got:%+v\nwant:%+v\n", got, want)
 
 	if !reflect.DeepEqual(got, want) {
-		t.Errorf("got %+v, want %+v\n", got, want)
+		t.Errorf("\ngot %+v,\nwant %+v\n", got.Query, want.Query)
 	}
 }
