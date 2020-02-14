@@ -6,10 +6,10 @@ import (
 )
 
 type Node struct {
-	Name     string
-	ID       string
-	ParentID string
-	Children []*Node
+	Name     string  `json:"name"`
+	ID       string  `json:"id"`
+	ParentID string  `json:"parent_id"`
+	Children []*Node `json:"-"`
 }
 
 type Tree struct {
