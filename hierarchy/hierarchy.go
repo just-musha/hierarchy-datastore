@@ -91,6 +91,9 @@ func isTakenChildName(parent *Node, childname string) bool {
 
 // TODO: "add_node"
 func (tr *Tree) AddNode(id, name, parent_id string) bool {
+	if tr.root == nil {
+		return false
+	}
 	if name == "" || id == "" {
 		fmt.Errorf("Name and ID must be specified and not empty strings")
 		return false
@@ -129,6 +132,9 @@ func (tr *Tree) AddNode(id, name, parent_id string) bool {
 
 // TODO: "delete_node"
 func (tr *Tree) DeleteNode(id string) bool {
+	if tr.root == nil {
+		return false
+	}
 	if id == "" {
 		fmt.Errorf("ID must be specified and not an empty string")
 		return false
@@ -157,6 +163,9 @@ func (tr *Tree) DeleteNode(id string) bool {
 
 // TODO: "move_node"
 func (tr *Tree) MoveNode(id, new_parent_id string) bool {
+	if tr.root == nil {
+		return false
+	}
 	if id == "" || new_parent_id == "" {
 		fmt.Errorf("MoveNode: ID and new parent ID must be specified and not empty strings")
 		return false

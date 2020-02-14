@@ -41,6 +41,31 @@ func TestFindNodeByID(t *testing.T) {
 	}
 }
 
+func TestEmptyTree(t *testing.T) {
+	var empty Tree
+	want := Tree{root: nil}
+
+	empty.AddNode("1", "root", "0")
+	if !reflect.DeepEqual(empty, want) {
+		t.Errorf("Add Root incorrect:\ngot %+v\nwant %+v\n", empty, want)
+	}
+
+	empty.DeleteNode("1")
+	if !reflect.DeepEqual(empty, want) {
+		t.Errorf("Add Root incorrect:\ngot %+v\nwant %+v\n", empty, want)
+	}
+
+	empty.MoveNode("1", "0")
+	if !reflect.DeepEqual(empty, want) {
+		t.Errorf("Add Root incorrect:\ngot %+v\nwant %+v\n", empty, want)
+	}
+
+	empty.Query(5, -1, nil, nil, nil)
+	if !reflect.DeepEqual(empty, want) {
+		t.Errorf("Add Root incorrect:\ngot %+v\nwant %+v\n", empty, want)
+	}
+}
+
 func TestAddRoot(t *testing.T) {
 	var tree Tree
 	result := tree.AddNode("1", "root", "")
