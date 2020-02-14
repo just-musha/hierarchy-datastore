@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	hierarchy "hierarchy-datastore/hierarchy"
 	"testing"
@@ -86,8 +85,6 @@ func TestRequestQuery(t *testing.T) {
 	want.Query.Names = []string{"B"}
 	want.Query.MinD = new(int)
 	*want.Query.MinD = 2
-
-	fmt.Printf("got:%+v\nwant:%+v\n", got, want)
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("\ngot %+v,\nwant %+v\n", got.Query, want.Query)

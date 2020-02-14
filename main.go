@@ -50,7 +50,8 @@ func writeResponse(status bool) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(resp))
+	resp = append(resp, byte('\n'))
+	os.Stdout.Write(resp[:])
 }
 
 func writeResponseNodes(nodes []*hierarchy.Node) {
@@ -58,7 +59,8 @@ func writeResponseNodes(nodes []*hierarchy.Node) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(resp))
+	resp = append(resp, byte('\n'))
+	os.Stdout.Write(resp[:])
 }
 
 func AnalyseReqest(tree *hierarchy.Tree, req string) {
