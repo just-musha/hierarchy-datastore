@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	hierarchy "hierarchy-datastore/hierarchy"
-	"strings"
 )
 
 type AddNodeParams struct {
@@ -62,7 +61,7 @@ func writeResponseNodes(nodes []*hierarchy.Node) {
 	fmt.Println(string(resp))
 }
 
-func AnalyseReqest(tree hierarchy.Tree, req string) {
+func AnalyseReqest(tree *hierarchy.Tree, req string) {
 	var request Request
 
 	err := json.Unmarshal([]byte(req), &request)
@@ -108,10 +107,11 @@ func main() {
 
 	var tree hierarchy.Tree
 
-	scanner := bufio.NewScanner(strings.NewReader("{\"add_node\":{\"id\":\"1\",\"name\":\"Root\"}}\n{\"query\":{\"min_depth\":2,\"names\":[\"B\"]}}"))
+	//scanner := bufio.NewScanner(strings.NewReader("{\"add_node\":{\"id\":\"1\",\"name\":\"Root\"}}\n{\"query\":{\"min_depth\":2,\"names\":[\"B\"]}}"))
+	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
-		AnalyseReqest(tree, scanner.Text())
+		AnalyseReqest(&tree, scanner.Text())
 	}
 }
